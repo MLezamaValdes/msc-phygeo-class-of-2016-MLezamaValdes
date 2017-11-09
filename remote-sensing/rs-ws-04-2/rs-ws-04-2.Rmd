@@ -1,0 +1,85 @@
+
+---
+title: "rs-ws-04-1"
+author: "Jannis Gottwald, Lukas Ditzel, Michaela Vorndran, Maite Lezama Valdes, Alexander Jorns"
+date: "17 de noviembre de 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Spatial filtering
+
+####Computing filters for set of window extents
+
+```{r, eval=FALSE}
+path_main <- "E:/14_11_16_to_do/"
+path_data <- paste0(path_main, "2016-fe/data/")
+path_repo <- paste0(path_main, "msc-phygeo-class-of-2016-MLezamaValdes/remote-sensing/rs-ws-04-1/")
+
+#list all tiles
+read<-list.files(path=path_data, pattern=glob2rx("*00.tif"), full.names=TRUE)
+read <- as.list(read)
+
+#stack tiles
+s <- lapply(read, stack)
+#load function for grean leaf index (gli)
+source(paste0(path_repo, "gli_function.R"))
+#calculate gli for all tiles
+resx <- lapply(s, FUN = gli)
+saveRDS(resx, file = paste0(path_data,"gli_kacheln.rds"))
+
+#check out what the best resolution for the homogeneity-statistics on glcm might be
+homvar_test <- list()
+x <- seq(30)*2-1
+x <- x[2:30]
+for (i in seq(x))  {homvar_test[[i]] <- glcm(resx[[4]], window=c(x[i],x[i]),statistics="homogeneity")}
+saveRDS(homvar_test, file = paste0(path_data,"homvar_test.rds"))
+
+#write Rasters as examples
+homvar <- list()
+x <- c(3,21,51)
+for (i in seq(x))  {homvar[[i]] <- glcm(resx[[4]], window=c(x[i],x[i]),statistics="homogeneity")}
+saveRDS(homvar, file = paste0(path_data,"homvar3,21,51.rds"))
+
+hom3x3 <- homvar[[1]]
+hom21x21 <- homvar[[2]]
+hom51x51 <- homvar[[3]]
+
+writeRaster(hom3x3, filename = "hom3.tif", overwrite=F)
+writeRaster(hom21x21, filename = "hom21.tif", overwrite=F)
+writeRaster(hom51x51, filename = "hom51.tif", overwrite=F)
+
+#calculate homogeneity with best resolution (window of 21x21) for all tiles
+i <- c(1:6)
+hom21 <- list()
+for (i in seq(resx)){
+  hom21[[i]] <- glcm(resx[[i]], window=c(21,21), statistics="homogeneity")}
+saveRDS(hom21, file = paste0(path_data,"hom21.rds"))
+```
+
+####Visualization of data, how does filter work?
+
+```{r, eval=FALSE}
+small <- raster("hom3.tif")
+well_suited <- raster("hom21.tif")
+big <- raster("hom51.tif")
+```
+The aim of the filter is to describe the relations of gray-levels in the 
+environment of a certain pixel. The frequency of neighbouring pixels after 
+certain definition of neighborhood is being used to calculate the overall
+homogeneity of the image. 
+
+
+![3x3](E:\14_11_16_to_do/2016-fe/data/hom3.JPG)
+
+![21x21 - best resolution](E:\14_11_16_to_do/2016-fe/data/hom21.JPG)
+
+![51x51](E:\14_11_16_to_do/2016-fe/data/hom51.JPG)
+
+The filter resolution we chose is better suitable for a landuse-classification, 
+because as can be seen in the pictures, neither the smallest nor the 
+biggest resolution is abled to differentiate nicely the different types of 
+landcover by their gray-levels. This is due to the high resolution of pixels.

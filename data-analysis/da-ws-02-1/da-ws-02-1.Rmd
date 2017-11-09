@@ -1,0 +1,158 @@
+---
+title: "da-ws-02-1"
+author: Jannis Gottwald, Lukas Ditzel, Michaela Vorndran, Maite Lezama Valdez, Alexander
+  Jorns,
+date: "29 Oktober 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loop and conquer
+
+Favorite aspect of the session: differentiation of types of loops
+
+Superfluous aspect of the session: - 
+
+Eureka effect: - 
+
+Links to what I've learned so far: better understanding of loop-structures
+
+Questions: -
+
+```{r}
+
+
+#Aufgabe 1
+
+n<- 1
+if (n>1) {
+  print('Larger')
+} else {
+  print('Equal or smaller')
+}
+
+
+#Aufgabe 2
+
+n<- 5
+if (n>1) {
+  print('Larger')
+} else if (n == 1) {
+  print('Equal')
+} else {
+  print('Smaller')
+}
+
+
+#Aufgabe 3
+
+n <- 2.5
+if (n%%2 == 0) {
+  print("Even")
+} else {
+  print("Odd")
+} 
+
+
+#Aufgabe 4
+for (n in seq(0,2)) {
+  if (n>1) {
+  print('Larger')
+} else if (n == 1) {
+  print('Equal')
+} else {
+  print('Smaller')
+}}
+
+
+
+#Aufgabe 5
+
+v1 <- NULL
+for (n in seq(0,2)) {
+  if (n > 1) {
+  v1[n+1] = 'Larger'
+} else if (n == 1) {
+  v1[n+1] = 'Equal'  
+} else if (n < 1) {
+  v1[n+1] = 'Smaller'
+}}
+v1
+  
+
+#Aufgabe 6
+
+v1 <- list(NULL)
+for (n in seq(0,2)) {
+  if (n > 1) {
+    v1[n+1] = 'Larger'
+  } else if (n == 1) {
+    v1[n+1] = 'Equal'  
+  } else if (n < 1) {
+    v1[n+1] = 'Smaller'
+  }}
+v1
+
+
+#Aufgabe 7
+v6<-c(0,1,2)
+
+L2<-lapply(seq(v6), function (i){
+  if (v6[i]>1)
+  {("larger")}
+  else if (v6[i]==1)
+  {("equal")}
+  else if (v6[i]<1)
+  {("smaller")}
+})
+
+print(L2)
+
+#oder
+
+n <- c(0:2)
+ll<-NULL
+ll <- lapply(n, function(i){
+  if(i>1){
+    ll[n+1] = "Larger"
+  } else if (i==1) {
+    ll[n+1] = "Equal"
+  } else if (i<1) {
+    ll[n+1] = "Smaller"
+  }})
+ll
+
+
+#Aufgabe 8
+v6<-c(0,1,2)
+
+L2<-lapply(seq(v6), function (i){
+  if (v6[i]>1)
+  {("larger")}
+  else if (v6[i]==1)
+  {("equal")}
+  else if (v6[i]<1)
+  {("smaller")}
+})
+
+print(L2)
+unlist(L2)
+#oder
+
+n <- c(0:2)
+ll<-NULL
+ll <- lapply(n, function(i){
+  if(i>1){
+    ll[n+1] = "Larger"
+  } else if (i==1) {
+    ll[n+1] = "Equal"
+  } else if (i<1) {
+    ll[n+1] = "Smaller"
+  }})
+ll
+unlist(ll)
+
+```

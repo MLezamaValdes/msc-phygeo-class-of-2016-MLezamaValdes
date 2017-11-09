@@ -1,0 +1,88 @@
+---
+title: "da-ws-03-2"
+author: Maite Lezama Valdes, Lukas Ditzel, Jannis Gottwald, Alexander Jorns, Michaela
+  Vorndran
+date: "5 November 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Look and learn
+### da-ws-03-1
+```{r }
+setwd("E:/16_11_1_DA")
+df<-read.table("hessen_holzeinschlag_1997-2014.csv", skip = 4, header=T, sep=";", dec =",")
+class(df)
+
+# data frame ohne Zeile 19
+df<-df[-19, ]
+df
+summary (df)
+write.table(df, "hessen_holzeinschlag_1997-2014_clean.csv", dec=".", sep=",")
+
+```
+### da-ws-03-2
+####1:
+#####Create a simple visualization which gives a quick, temporally non explicit and descriptive statistical overview of the harvest by tree type and as a total over all trees (i.e. a similar kind of information the `summary` function provides).
+```{r }
+summary (df)
+df1 <- df
+df2 <- df
+attach(df2)
+
+box<-boxplot(df1, xlab="Species", 
+ylab="Logging per year in Tsd.", main= "Logging Overview", names = colnames(df1), 
+col = (c("green", "green","darkgreen", "darkgreen", "green", "red")))
+
+```
+
+
+
+
+
+####2: 
+#####Have a look at beech and spruce and write exactly one sentence for each of the tree species which summarizes what you see. 
+
+The interquartil range of Beech harvest is relatively small lying between 1500 and 1800, the distribution being left skewed.
+In comparison spruce shows a higher variation in quantities harvested, interquartil range of the right-skewed distribution lies between about 1700 and 2600 with an outlier at about 6500.
+
+####3: 
+#####Create another visualization which - in the same figure panel - shows how each beech harvest over the time span is related each of the oak, pine, spruce and colored wood harvests in a 2 by 2 grid (i.e. arrange the figures in a 2 columns and 2 rows layout).
+
+```{r }
+be<- cbind(Buche,Eiche)
+bf<- cbind(Buche, Fichte)
+bk <-cbind(Buche, Kiefer)
+bb <-cbind(Buche, Buntholz)
+par(mfrow=c(2,2), xpd=NA)
+matplot (FWJ, be, type ="o", pch=1, main = "logging beech/oak", ylab = "logging in tsd.",xaxt="n")
+axis(1, at=c(1997:2014))
+matplot (FWJ, bf,type ="o", pch=1, main="logging beech/spruce",ylab = "logging in tsd.", xaxt="n")
+axis(1, at=c(1997:2014))
+matplot (FWJ, bk, type ="o", pch=1, main="logging beech/pine",ylab = "logging in tsd.", xaxt="n")
+axis(1, at=c(1997:2014))
+matplot (FWJ, bb, type ="o", pch=1, main= "logging beech/colored wood",ylab = "logging in tsd.",xaxt="n")
+axis(1, at=c(1997:2014))
+legend("topleft", inset=c(-0.5,-1.2), legend = c("Beech","Other Species"), horiz=F, col=1:2, pch=1, title= "Legend", lty = c(1,2))
+
+
+#or
+
+l<- list(be, bf, bk, bb)
+for (i in l) {matplot (FWJ, i, type ="o", pch=1, main= "Logging", ylab = "Logging in tsd.",xaxt="n")
+  axis(1, at=c(1997:2014))}
+legend("topleft", inset=c(-.5,-1.2), legend = c("Beech","Other Species"), horiz=F, col=1:2, pch=1, title= "Legend", lty = c(1,2))
+
+```
+
+####4:
+#####Describe each plot with exactly one sentence.
+
+The harvest of oak isn't varying much over time and is much less than Beech, which is slightly increasing over time.
+Colored wood harvest is zero after the first years, so there can't be made any useful statement about their relation.
+The distribution of spruce harvest over time is best correlated with Beech in comparison to the other species, spruce being harvested more in the middle of the timeline.
+Pine is being harvested less than Beech with no specific trend to be seen over time. 
+

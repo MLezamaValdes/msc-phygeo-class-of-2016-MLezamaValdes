@@ -1,0 +1,19 @@
+---
+title: "3-3"
+author: Maite Lezama Valdes, Lukas Ditzel, Alexander Jorns, Jannis Gottwald, Michaela
+  Vorndran
+date: "24 Januar 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 
+
+```{r}
+
+
+```
+

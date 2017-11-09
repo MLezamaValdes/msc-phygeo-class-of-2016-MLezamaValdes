@@ -1,0 +1,22 @@
+path_main <- "C:/Users/mleza/Documents/msc-phygeo-ws-16/"
+path_rep <- paste0(path_main, "msc-phygeo-class-of-2016-MLezamaValdes/")
+path_rep_da <- paste0(path_rep, "data-analysis/")
+path_rep_rs <- paste0(path_rep, "remote-sensing/")
+path_rep_gis <- paste0(path_rep, "gis/")
+path_rep_fun <- paste0(path_rep, "fun/")
+path_data <- paste0(path_main, "data/")
+path_data_da <- paste0(path_data, "data_analysis/")
+path_data_gis <- paste0(path_data, "gis/")
+path_gis_input <- paste0(path_data_gis, "input/")
+path_data_rs <- paste0(path_data, "remote_sensing/")
+path_rs_input <- paste0(path_data, "input/")
+path_da_rds <- paste0(path_data_da, "rds/")
+path_gis_run <- paste0(path_data_gis,"run")
+path_gis_input_clean <- paste0(path_data_gis,"input_clean/")
+path_gis_output_clean <- paste0(path_data_gis,"output_clean/")
+path_da_stat <- paste0(path_data_da, "stat/")
+path_rs_E7 <- "C:/Users/mleza/Documents/msc-phygeo-ws-16/data/remote_sensing/E7-01/"
+path_rs_train <- paste0(path_data_rs, "train/")
+path_rs_rdata <- paste0(path_data_rs, "RData/")
+path_rs_muf_merged <- paste0(path_data_rs, "muf_merged/")
+path_saga_norm <- "C:\\Users\\mleza\\saga_3.0.0_x64\\saga_3.0.0_x64\\"

@@ -1,0 +1,121 @@
+---
+title: "rs-ws-02-1"
+author: Jannis Gottwald, Lukas Ditzel, Michaela Vorndran, Maite Lezama Valdez, Alexander
+  Jorns,
+date: "28 Oktober 2016"
+output: html_document
+---
+###Feedback
+Favorite aspect of the session: good to reapeat spectral characteristics
+Superfluous aspect of the session: - 
+Eureka effect: - 
+Links to what I've learned so far: a lot
+Questions: - 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Crop
+
+
+```{r eval=FALSE}
+library(raster)
+setwd("C:/Users/MLezamavaldes/Documents/msc-phygeo-class-of-2016-MLezamaValdes/remote-sensing/rs-ws-02-1")
+
+
+###read all tiff's in directory into list
+
+read<-list.files("msc_phygeo_class_of_2016/remote_sensing_2016/data/raster/474000_5630000/", recursive=TRUE, pattern=glob2rx("*.tif"), full.names=TRUE)
+
+###convert to raster
+
+air_stck_lst<-lapply (read, function(i){stack(i)})
+
+projection(air_stck_lst[[1]])
+
+###read lidar raster obtain extent
+ext<-raster("msc_phygeo_class_of_2016/remote_sensing_2016/data/raster/ext.tif")
+
+projection(ext)
+
+crs(ext)<-"+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs"
+
+###optain extent
+extent(ext)
+
+###crop two eastern layers by using the xmax value of extent object
+
+ext_1<-crop(air_stck_lst[[6]],
+            extent(air_stck_lst[[6]]@extent@xmin, 
+                   ext@extent@xmax, 
+                   air_stck_lst[[6]]@extent@ymin, 
+                   air_stck_lst[[6]]@extent@ymax
+            ))
+
+ext_2<-crop(air_stck_lst[[7]], 
+            extent(air_stck_lst[[7]]@extent@xmin, 
+                   ext@extent@xmax, 
+                   air_stck_lst[[7]]@extent@ymin, 
+                   air_stck_lst[[7]]@extent@ymax
+            ))
+
+##write results to new directory
+
+writeRaster(ext_1, filename="C:/Users/MLezamavaldes/Documents/2016-remote-sensing/data/478_5632.tif", bylayers=TRUE)
+
+writeRaster(ext_2, filename="C:/Users/MLezamavaldes/Documents/2016-remote-sensing/data/478_5634.tif", bylayers=TRUE)
+
+
+
+
+```
+![](cropped.jpg)
+
+
+##Merge
+
+```{r eval=FALSE}
+
+####change  NA's in stacks
+
+stack_na<-lapply(seq(air_stck_lst), function(i){
+  air_stck_lst[[i]][air_stck_lst[[i]]==255]<-0
+  return(air_stck_lst[[i]])
+}
+)
+
+
+##mosaic stacks
+merged<-mosaic(stack_na[[1]], stack_na[[2]], 
+               stack_na[[3]], stack_na[[4]], 
+               stack_na[[5]], stack_na[[6]], 
+               stack_na[[7]],fun=max)
+
+
+###save .rds 
+
+save(merged, file = "air_mc.rds")
+
+
+###get template for cropping
+
+ext<-raster("ext.tif")
+
+projection(ext)
+
+crs(ext)<-"+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs"
+
+###crop to lidar data
+
+merge_crop<-raster::crop(merged,ext, snap = "out")
+
+
+###save raster stack
+
+save(merge_crop, file = "air_crop.rds")
+
+writeRaster(merged, filename="air_crop.tif",  overwrite=TRUE)
+````
+![](merged_cropped.jpg)

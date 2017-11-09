@@ -1,0 +1,93 @@
+#gi-ws-05-1
+# implementation
+
+#preparation
+if (!require(RSAGA)){install.packages('RSAGA')}
+if (!require(rgdal)){install.packages('rgdal')}
+if (!require(raster)){install.packages('raster')}
+if (!require(gdalUtils)){install.packages('gdalUtils')}
+if(!require(raster)){install.packages("raster")}
+
+library(RSAGA)
+library(gdalUtils)
+library(raster)
+
+source("C:/Users/mleza/Documents/msc-phygeo-ws-16/msc-phygeo-class-of-2016-MLezamaValdes/fun/paths.r")
+source(paste0(path_rep_fun,"add2Path.r"))
+source(paste0(path_rep_fun,"makGlobalVar.r"))
+source(paste0(path_rep_fun,"initgdalutil.r"))
+source(paste0(path_rep_fun,"initSAGA.r"))
+
+initSAGA(c("C:\\Users\\mleza\\saga_3.0.0_x64","C:\\Users\\mleza\\saga_3.0.0_x64\\tools"))
+gdal <- initgdalUtils()
+
+#gdal_setInstallation()
+#valid.install<-!is.null(getOption("gdalUtils_gdalPath"))
+#if (!valid.install){stop('no valid GDAL/OGR found')} else{print('gdalUtils status is ok')}
+
+###workflow start
+
+#new paths for the task
+path_gis_input_clean <- paste0(path_data_gis,"input_clean/")
+path_gis_output_clean <- paste0(path_data_gis,"output_clean/")
+inputFile <- "elevation.tif"
+sagaCmd <- paste0(path_saga_norm, "saga_cmd.exe")
+
+#convert dem to sgrd
+gdalUtils::gdalwarp(paste0(path_gis_input_clean,"elevation.tif"),
+                    paste0(path_gis_output_clean,"dem.sdat"), 
+                    overwrite=TRUE,  of='SAGA') 
+
+#preparation: 
+#fill sinks
+system(paste0(sagaCmd, " ta_preprocessor 4",
+              " -ELEV=",path_gis_output_clean, "dem.sgrd",
+              " -FILLED=",path_gis_output_clean,"dem_filled.sgrd")
+       )
+
+#slope, aspect, curvature-tool (slope needed for calculation of TWI)
+system(paste0(sagaCmd, " ta_morphometry 0",
+              " -ELEVATION=",path_gis_output_clean, "dem.sgrd",
+              " -SLOPE=",path_gis_output_clean,"slope.sgrd")
+)
+
+#calculate flow accumulation (Top-Down)
+system(paste0(sagaCmd, " ta_hydrology 0",
+              " -ELEVATION=",path_gis_output_clean, "dem_filled.sgrd",
+              " -FLOW=",path_gis_output_clean,"flow_acc_td.sgrd")
+)
+
+#calculate TWI (goal of the process)
+system(paste0(sagaCmd, " ta_hydrology 20",
+              " -SLOPE=",path_gis_output_clean, "slope.sgrd",
+              " -AREA=",path_gis_output_clean, "flow_acc_td.sgrd",
+              " -TWI=", path_gis_output_clean, "TWI.sgrd")
+)
+
+#calculate watershed for the outlet at 477755.4E, 5632178.4N (scale of the process)
+system(paste0(sagaCmd, " ta_hydrology 4",
+              " -TARGET_PT_X",477755.4,
+              " -TARGET_PT_Y",5632178.4,
+              " -ELEVATION=",path_gis_output_clean, "dem_filled.sgrd",
+              " -AREA=",path_gis_output_clean, "upslope.sgrd")
+)
+
+#reconverting .sgrd to .tif
+gdalUtils::gdalwarp(paste0(path_gis_output_clean,"upslope.sdat"),
+                    paste0(path_gis_output_clean,"upslope.tif"), 
+                    overwrite=TRUE, of="GTiff") 
+
+gdalUtils::gdalwarp(paste0(path_gis_output_clean,"TWI.sdat"),
+                    paste0(path_gis_output_clean,"TWI.tif"), 
+                    overwrite=TRUE, of="GTiff") 
+
+#read upslope and twi-Rasters
+upslope <- raster(paste0(path_gis_output_clean, "upslope.tif"))
+twi <- raster(paste0(path_gis_output_clean, "TWI.tif"))
+
+#form grid with twi for catchment area
+twi_upslope <- twi
+twi_upslope[upslope==0] <- NA
+plot(twi_upslope)
+
+writeRaster(twi_upslope,paste0(outpath,"twi_upslope.tif"))
